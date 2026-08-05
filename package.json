@@ -1,6 +1,6 @@
 {
   "name": "@unerp/sdk",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "L1 — generated TypeScript client SDK. Different consumers (third parties), different cadence.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

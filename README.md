@@ -1,31 +1,27 @@
 # unierp-sdk
 
-**Layer L1** of the UniERP layered repository architecture
-(`PLATFORM_ARCHITECTURE.md` § 4.2). Publishes `@unierp/sdk`.
+**Layer L1 — Foundation** of the [UniERP](../unierp-platform) platform.
+Depends on: L0.
 
-Depends on: L0 (`@unerp/contracts`).
+## What this is
 
-## What lives here
+The typed, retrying, tenant-aware client third parties install. TypeScript, Python, Java, Go and Dart, all generated from the contracts.
 
-The typed, retrying, tenant-aware client third parties install.
+## The invariant this repository owns
 
-## The invariant
+Must be installable **without** the platform, and versions on its own cadence — it follows the API, not the release train.
 
-Different consumers (third parties), different cadence, and it must be installable WITHOUT the platform. Generated from L0, never hand-written — the SDK follows the API, not the platform train (§ 7.3).
+## The rule that applies everywhere
 
-**A repository may depend only on published artifacts of a strictly lower
-layer. Never sideways within a layer. Never upward.** A cycle is not
-discouraged here — it is unrepresentable, because the lower layer's package
-cannot name the higher one.
+A repository may depend only on published artifacts of a **strictly lower
+layer** — never sideways within a layer, never upward. A cycle is not
+discouraged; it is unrepresentable, because the lower layer's package cannot
+name the higher one.
 
-## Extraction status
+See the [platform overview](../unierp-platform/README.md) for the full map, and
+[`PLATFORM_ARCHITECTURE.md`](../ERPSys/docs/PLATFORM_ARCHITECTURE.md) § 4.2 for
+the reasoning.
 
-Extracted from the `ERPSys` monorepo as § 14 Phase 3.2.
+## Licence
 
-**The monorepo copy is still authoritative.** Per § 14, consumers switch to the
-published package only once that package is publishable, and the monorepo stays
-buildable at each extraction tag until they do. Until a registry is available
-this repository is the extraction target, not the source of truth.
-
-Rollback is a one-line `pnpm` override pointing consumers back at the
-workspace path.
+AGPL-3.0.
