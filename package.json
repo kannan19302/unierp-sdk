@@ -9,9 +9,14 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@unerp/contracts": "workspace:*"
+    "@unerp/contracts": "^1.0.0"
   },
   "devDependencies": {
     "typescript": "^5.7.0"
-  }
+  },
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ]
 }
