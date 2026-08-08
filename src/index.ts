@@ -1,13 +1,13 @@
 /**
- * @unerp/sdk — L1 TypeScript client SDK.
- * Generated from @unerp/contracts (L0). Never hand-written.
+ * @kannan19302/sdk — L1 TypeScript client SDK.
+ * Generated from @kannan19302/contracts (L0). Never hand-written.
  * See PLATFORM_ARCHITECTURE.md § 7.3.
  */
 import type {
   ProvisionTenantRequest,
   ProvisionTenantResponse,
   ApiResponse,
-} from "@unerp/contracts";
+} from "@kannan19302/contracts";
 
 /**
  * Public rendering payloads.
@@ -15,7 +15,7 @@ import type {
  * `unknown` rather than `any`: this is a published package that third parties
  * compile against, and `any` would silently disable checking in *their* code,
  * not just ours. Once the corresponding response schemas exist in
- * `@unerp/contracts` these become generated `z.infer` types and stop being
+ * `@kannan19302/contracts` these become generated `z.infer` types and stop being
  * hand-written at all (PLATFORM_ARCHITECTURE § 7.3 — the SDK is generated,
  * never authored).
  */

@@ -1,5 +1,5 @@
 {
-  "name": "@unerp/sdk",
+  "name": "@kannan19302/sdk",
   "version": "1.0.3",
   "description": "L1 — generated TypeScript client SDK. Different consumers (third parties), different cadence.",
   "main": "dist/index.js",
@@ -9,7 +9,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@unerp/contracts": "^1.0.4"
+    "@kannan19302/contracts": "^1.0.4"
   },
   "devDependencies": {
     "typescript": "^5.7.0"
