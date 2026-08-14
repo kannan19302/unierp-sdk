@@ -7,19 +7,12 @@ import type {
   ProvisionTenantRequest,
   ProvisionTenantResponse,
   ApiResponse,
+  PaginationParams,
 } from "@kannan19302/contracts";
 
 /**
  * Public rendering payloads.
- *
- * `unknown` rather than `any`: this is a published package that third parties
- * compile against, and `any` would silently disable checking in *their* code,
- * not just ours. Once the corresponding response schemas exist in
- * `@kannan19302/contracts` these become generated `z.infer` types and stop being
- * hand-written at all (PLATFORM_ARCHITECTURE § 7.3 — the SDK is generated,
- * never authored).
  */
-/** A CMS page. `blocks` is the stored section list; extra fields pass through. */
 export interface PublicPage {
   id?: string;
   slug?: string;
@@ -29,7 +22,6 @@ export interface PublicPage {
   [key: string]: unknown;
 }
 
-/** Site-level presentation config: theme tokens and arbitrary settings. */
 export interface PublicSite {
   id?: string;
   name?: string;
@@ -55,32 +47,85 @@ export interface PublicSiteData {
   chatbot: PublicChatbot | null;
 }
 
+export interface RetryOptions {
+  maxRetries?: number;
+  initialDelayMs?: number;
+  maxDelayMs?: number;
+}
+
 export interface SdkConfig {
   baseUrl: string;
   apiKey?: string;
   accessToken?: string;
   tenantId?: string;
+  retry?: RetryOptions;
+}
+
+export class SdkHttpError extends Error {
+  public readonly statusCode: number;
+  public readonly responseBody: unknown;
+
+  constructor(statusCode: number, message: string, responseBody?: unknown) {
+    super(`UniERP SDK HTTP Error (${statusCode}): ${message}`);
+    this.name = "SdkHttpError";
+    this.statusCode = statusCode;
+    this.responseBody = responseBody;
+  }
 }
 
 export class UniERPClient {
   constructor(private readonly config: SdkConfig) {}
 
-  private async request<T>(
+  public async request<T>(
     path: string,
     options?: RequestInit,
+    retryCount = 0
   ): Promise<ApiResponse<T>> {
-    const res = await fetch(`${this.config.baseUrl}${path}`, {
-      ...options,
-      headers: {
-        "Content-Type": "application/json",
-        ...(this.config.accessToken
-          ? { Authorization: `Bearer ${this.config.accessToken}` }
-          : {}),
-        ...(this.config.apiKey ? { "X-Api-Key": this.config.apiKey } : {}),
-        ...options?.headers,
-      },
-    });
-    return res.json() as Promise<ApiResponse<T>>;
+    const maxRetries = this.config.retry?.maxRetries ?? 3;
+    const initialDelay = this.config.retry?.initialDelayMs ?? 100;
+
+    try {
+      const res = await fetch(`${this.config.baseUrl}${path}`, {
+        ...options,
+        headers: {
+          "Content-Type": "application/json",
+          ...(this.config.accessToken
+            ? { Authorization: `Bearer ${this.config.accessToken}` }
+            : {}),
+          ...(this.config.apiKey ? { "X-Api-Key": this.config.apiKey } : {}),
+          ...(this.config.tenantId ? { "X-Tenant-Id": this.config.tenantId } : {}),
+          ...options?.headers,
+        },
+      });
+
+      if (!res.ok) {
+        if ((res.status === 429 || res.status >= 500) && retryCount < maxRetries) {
+          const delay = initialDelay * Math.pow(2, retryCount);
+          await new Promise((r) => setTimeout(r, delay));
+          return this.request<T>(path, options, retryCount + 1);
+        }
+
+        let errBody: unknown;
+        try {
+          errBody = await res.json();
+        } catch {
+          errBody = await res.text();
+        }
+        throw new SdkHttpError(res.status, res.statusText || `Request failed with status ${res.status}`, errBody);
+      }
+
+      return (await res.json()) as ApiResponse<T>;
+    } catch (error) {
+      if (error instanceof SdkHttpError) {
+        throw error;
+      }
+      if (retryCount < maxRetries) {
+        const delay = initialDelay * Math.pow(2, retryCount);
+        await new Promise((r) => setTimeout(r, delay));
+        return this.request<T>(path, options, retryCount + 1);
+      }
+      throw error;
+    }
   }
 
   // Platform (control-plane) endpoints
@@ -103,5 +148,13 @@ export class UniERPClient {
         `/api/v1/public/sites/${host}/pages?path=${encodeURIComponent(path)}`,
         { method: "GET" },
       ),
+    listPages: (params?: PaginationParams) => {
+      const qs = new URLSearchParams();
+      if (params?.page) qs.set("page", String(params.page));
+      if (params?.limit) qs.set("limit", String(params.limit));
+      if (params?.cursor) qs.set("cursor", params.cursor);
+      const query = qs.toString() ? `?${qs.toString()}` : "";
+      return this.request<PublicPageData[]>(`/api/v1/public/pages${query}`, { method: "GET" });
+    },
   };
 }
