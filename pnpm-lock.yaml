@@ -1,0 +1,33 @@
+lockfileVersion: '9.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+importers:
+
+  .:
+    dependencies:
+      '@kannan19302/contracts':
+        specifier: ^1.0.4
+        version: 1.0.4
+    devDependencies:
+      typescript:
+        specifier: ^5.7.0
+        version: 5.9.3
+
+packages:
+
+  '@kannan19302/contracts@1.0.4':
+    resolution: {integrity: sha512-OyyQlR0qhBCHp61++Kf1RueYM/qriMKJ3GsdyaDvydpbWlgFo2w9Z3YjSpCa7xlcRcDCwzEmJOYCoJmFuCVM0Q==}
+
+  typescript@5.9.3:
+    resolution: {integrity: sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==}
+    engines: {node: '>=14.17'}
+    hasBin: true
+
+snapshots:
+
+  '@kannan19302/contracts@1.0.4': {}
+
+  typescript@5.9.3: {}
